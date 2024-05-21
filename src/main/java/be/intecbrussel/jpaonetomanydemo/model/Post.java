@@ -8,8 +8,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "posts")
@@ -17,6 +16,7 @@ public class Post extends AuditModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
     @Size(max = 100)
     @Column(unique = true)
@@ -25,29 +25,22 @@ public class Post extends AuditModel {
     @Size(max = 250)
     private String description;
 
-    public Post() {
-    }
-
     @NotNull
     @Lob
     private String content;
 
-    public Set<Comment> getComments() {
-        return comments;
-    }
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
-    public void setComments(Set<Comment> comments) {
-        this.comments = comments;
+    public Post() {
     }
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "post")
-    private Set<Comment> comments = new HashSet<>();
 
     public Post(String title, String description, String content) {
         this.title = title;
         this.description = description;
         this.content = content;
     }
+
 
     public Long getId() {
         return id;
@@ -79,6 +72,14 @@ public class Post extends AuditModel {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 
     @Override

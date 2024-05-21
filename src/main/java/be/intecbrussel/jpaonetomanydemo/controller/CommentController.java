@@ -1,106 +1,92 @@
 package be.intecbrussel.jpaonetomanydemo.controller;
 
 
-import be.intecbrussel.jpaonetomanydemo.exception.ResourceNotFoundException;
 import be.intecbrussel.jpaonetomanydemo.model.Comment;
 import be.intecbrussel.jpaonetomanydemo.model.Post;
-import be.intecbrussel.jpaonetomanydemo.repository.CommentRepository;
-import be.intecbrussel.jpaonetomanydemo.repository.PostRepository;
-import be.intecbrussel.jpaonetomanydemo.service.CommentService;
-import be.intecbrussel.jpaonetomanydemo.service.PostService;
+import be.intecbrussel.jpaonetomanydemo.service.CommentServiceImpl;
+import be.intecbrussel.jpaonetomanydemo.service.PostServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
 
 import java.util.List;
 
-//
-//@RestController
-//public class CommentController {
-//
-//    @Autowired
-//    private CommentRepository commentRepository;
-//
-//    @Autowired
-//    private PostRepository postRepository;
-//
-//    @GetMapping("/posts/{postId}/comments")
-//    public Page<Comment> getAllCommentsByPostId(@PathVariable (value = "postId") Long postId,
-//                                                Pageable pageable) {
-//        return commentRepository.findByPostId(postId, pageable);
-//    }
-//
-//    @PostMapping("/posts/{postId}/comments")
-//    public Comment createComment(@PathVariable (value = "postId") Long postId,
-//                                 @Valid @RequestBody Comment comment) {
-//        return postRepository.findById(postId).map(post -> {
-//            comment.setPost(post);
-//            return commentRepository.save(comment);
-//        }).orElseThrow(() -> new ResourceNotFoundException("PostId " + postId + " not found"));
-//    }
-//
-//    @PutMapping("/posts/{postId}/comments/{commentId}")
-//    public Comment updateComment(@PathVariable (value = "postId") Long postId,
-//                                 @PathVariable (value = "commentId") Long commentId,
-//                                 @Valid @RequestBody Comment commentRequest) {
-//        if(!postRepository.existsById(postId)) {
-//            throw new ResourceNotFoundException("PostId " + postId + " not found");
-//        }
-//
-//        return commentRepository.findById(commentId).map(comment -> {
-//            comment.setText(commentRequest.getText());
-//            return commentRepository.save(comment);
-//        }).orElseThrow(() -> new ResourceNotFoundException("CommentId " + commentId + "not found"));
-//    }
-//
-//    @DeleteMapping("/posts/{postId}/comments/{commentId}")
-//    public ResponseEntity<?> deleteComment(@PathVariable (value = "postId") Long postId,
-//                                           @PathVariable (value = "commentId") Long commentId) {
-//        return commentRepository.findByIdAndPostId(commentId, postId).map(comment -> {
-//           commentRepository.delete(comment);
-//            return ResponseEntity.ok().build();
-//        }).orElseThrow(() -> new ResourceNotFoundException("Comment not found with id " + commentId + " and postId " + postId));
-//    }
-//}
-@RestController
+
+@Controller
 public class CommentController {
+    private  CommentServiceImpl commentService;
+    private  PostServiceImpl postService;
+
 
     @Autowired
-    private CommentService commentService; // Используем сервис для работы с комментариями
+    public CommentController(CommentServiceImpl commentService, PostServiceImpl postService) {
+        this.commentService = commentService;
+        this.postService = postService;
+    }
 
-    @Autowired
-    private PostService postService; // Используем сервис для работы с постами
-
+    // Handles GET requests for displaying all comments for a specific post
     @GetMapping("/posts/{postId}/comments")
-    public List<Comment> getAllCommentsByPostId(@PathVariable Long postId) {
-        return commentService.getAll(postId); // Получаем все комментарии для поста с указанным ID с помощью сервиса
+    public String getAllCommentsByPostId(@PathVariable(value = "postId") Long postId,
+                                         @RequestParam(name = "page", defaultValue = "1") int pageNo,
+                                         Model model) {
+        int pageSize = 5;
+        Page<Comment> page = commentService.findCommentPaginated(postId, pageNo, pageSize);
+        List<Comment> commentList = page.getContent();
+
+        model.addAttribute("currentPage", pageNo);
+        model.addAttribute("totalPages", page.getTotalPages());
+        model.addAttribute("totalItems", page.getTotalElements());
+        model.addAttribute("commentList", commentList);
+
+        // Fetches the post to which comments belong and adds to the model
+        Post post = postService.getPostById(postId);
+        model.addAttribute("post", post);
+        model.addAttribute("comment", new Comment());
+        return "comments";
     }
 
+    // Handles POST requests for creating a new comment
     @PostMapping("/posts/{postId}/comments")
-    public void createComment(@PathVariable Long postId, @RequestBody Comment comment) {
-        Post post = postService.getPostById(postId); // Получаем пост по ID
-        comment.setPost(post); // Устанавливаем пост для комментария
-        commentService.save(comment); // Сохраняем новый комментарий с помощью сервиса
+    public String createComment(@PathVariable(value = "postId") Long postId,
+                                @ModelAttribute("comment") Comment comment) {
+        Post post = postService.getPostById(postId);
+        // Associates the comment with the post
+        comment.setPost(post);
+        commentService.saveComment(comment);
+        return "redirect:/posts/" + postId + "/comments";
     }
 
-    @PutMapping("/posts/{postId}/comments/{commentId}")
-    public void updateComment(@PathVariable Long postId, @PathVariable Long commentId, @RequestBody Comment commentRequest) {
-        Post post = postService.getPostById(postId); // Получаем пост по ID
-        // Проверяем существование поста
-        if (post == null) {
-            throw new ResourceNotFoundException("PostId " + postId + " not found");
-        }
-        commentRequest.setId(commentId); // Устанавливаем ID комментария из пути запроса
-        commentRequest.setPost(post); // Устанавливаем пост для комментария
-        commentService.save(commentRequest); // Сохраняем обновленный комментарий с помощью сервиса
+    // Handles GET requests for displaying the edit form for a specific comment
+    @GetMapping("/posts/{postId}/comments/{commentId}/edit")
+    public String showEditCommentForm(@PathVariable(value = "postId") Long postId,
+                                      @PathVariable(value = "commentId") Long commentId, Model model) {
+        Comment comment = commentService.getCommentById(commentId);
+        model.addAttribute("comment", comment);
+        model.addAttribute("postId", postId);
+        return "edit_comment";
     }
 
-    @DeleteMapping("/posts/{postId}/comments/{commentId}")
-    public void deleteComment(@PathVariable Long postId, @PathVariable Long commentId) {
-        commentService.deleteById(commentId); // Удаляем комментарий с указанным ID с помощью сервиса
+    // Handles POST requests for updating an existing comment
+    @PostMapping("/posts/{postId}/comments/{commentId}/edit")
+    public String updateComment(@PathVariable(value = "postId") Long postId,
+                                @PathVariable(value = "commentId") Long commentId,
+                                @ModelAttribute("comment") Comment comment) {
+        Comment existingComment = commentService.getCommentById(commentId);
+        existingComment.setText(comment.getText());
+        commentService.saveComment(existingComment);
+        return "redirect:/posts/" + postId + "/comments";
     }
-}
+
+
+    // Handles GET requests for deleting a specific comment
+    @GetMapping("/posts/{postId}/comments/{commentId}/delete")
+    public String deleteComment(@PathVariable(value = "postId") Long postId,
+                                @PathVariable(value = "commentId") Long commentId) {
+        commentService.deleteCommentById(commentId);
+        return "redirect:/posts/" + postId + "/comments";
+    }
+
+
+};

@@ -1,83 +1,86 @@
 package be.intecbrussel.jpaonetomanydemo.controller;
 
-import be.intecbrussel.jpaonetomanydemo.exception.ResourceNotFoundException;
-import be.intecbrussel.jpaonetomanydemo.model.Comment;
+
 import be.intecbrussel.jpaonetomanydemo.model.Post;
-import be.intecbrussel.jpaonetomanydemo.repository.PostRepository;
-import be.intecbrussel.jpaonetomanydemo.service.PostService;
+import be.intecbrussel.jpaonetomanydemo.service.PostServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
 
 import java.util.List;
 
 
-//
-//@RestController
-//public class PostController {
-//
-//    @Autowired
-//    private PostRepository postRepository;
-//
-//    @GetMapping("/posts")
-//    public Page<Post> getAllPosts(Pageable pageable) {
-//        return postRepository.findAll(pageable);
-//    }
-//
-//    @PostMapping("/posts")
-//    public Post createPost(@Valid @RequestBody Post post) {
-//        return postRepository.save(post);
-//    }
-//
-//    @PutMapping("/posts/{postId}")
-//    public Post updatePost(@PathVariable Long postId, @Valid @RequestBody Post postRequest) {
-//        return postRepository.findById(postId).map(post -> {
-//            post.setTitle(postRequest.getTitle());
-//            post.setDescription(postRequest.getDescription());
-//            post.setContent(postRequest.getContent());
-//            return postRepository.save(post);
-//        }).orElseThrow(() -> new ResourceNotFoundException("PostId " + postId + " not found"));
-//    }
-//
-//
-//    @DeleteMapping("/posts/{postId}")
-//    public ResponseEntity<?> deletePost(@PathVariable Long postId) {
-//        return postRepository.findById(postId).map(post -> {
-//            postRepository.delete(post);
-//            return ResponseEntity.ok().build();
-//        }).orElseThrow(() -> new ResourceNotFoundException("PostId " + postId + " not found"));
-//    }
-//}
-//
-//
-@RestController
+@Controller
 public class PostController {
 
+    private PostServiceImpl postService;
+
     @Autowired
-    private PostService postService; // Используем сервис для работы с постами
-
-    @GetMapping("/posts")
-    public List<Post> getAllPosts() {
-        return postService.getAllPosts(); // Получаем все посты с помощью сервиса
+    public PostController(PostServiceImpl postService) {
+        this.postService = postService;
     }
 
-    @PostMapping("/posts")
-    public void createPost(@RequestBody Post post) {
-        postService.savePost(post); // Сохраняем новый пост с помощью сервиса
+    // Handles the root URL, redirecting to the first page of paginated posts
+    @GetMapping("/")
+    public String viewHomepage(Model model) {
+        return findPostPaginated(1,model);
     }
 
-    @PutMapping("/posts/{postId}")
-    public void updatePost(@PathVariable Long postId, @RequestBody Post postRequest) {
-        postRequest.setId(postId); // Устанавливаем ID поста из пути запроса
-        postService.savePost(postRequest); // Сохраняем обновленный пост с помощью сервиса
+    // Shows the form to create a new post
+    @GetMapping("/showNewPostForm")
+    public String showNewPostForm(Model model) {
+        Post post = new Post();
+        model.addAttribute("post", post);
+        return "new_post";
     }
 
-    @DeleteMapping("/posts/{postId}")
-    public void deletePost(@PathVariable Long postId) {
-        postService.deletePostById(postId); // Удаляем пост с указанным ID с помощью сервиса
+    // Handles form submission for creating a new post
+    @PostMapping("/createPost")
+    public String createPost(@ModelAttribute("post") Post post) {
+        postService.savePost(post);
+        return "redirect:/";
     }
+
+    // Shows the form to update an existing post
+    @GetMapping("/updatePost/{id}")
+    public String showUpdatePostForm(@PathVariable(value = "id") Long postId, Model model) {
+        Post post = postService.getPostById(postId);
+        model.addAttribute("post", post);
+        return "edit_post";
+    }
+
+    // Handles form submission for updating an existing post
+    @PostMapping("/updatePost/{id}")
+    public String updatePost(@PathVariable(value = "id") Long postId, @ModelAttribute("post") Post post) {
+        Post existingPost = postService.getPostById(postId);
+        existingPost.setTitle(post.getTitle());
+        existingPost.setDescription(post.getDescription());
+        existingPost.setContent(post.getContent());
+        postService.savePost(existingPost);
+        return "redirect:/";
+    }
+
+    // Handles deleting a post by its ID
+    @GetMapping("/deletePost/{id}")
+    public String deletePost(@PathVariable(value = "id") Long postId) {
+        postService.deletePostById(postId);
+        return "redirect:/";
+    }
+
+    // Handles pagination for displaying posts
+    @GetMapping("/page/{pageNo}")
+    public String findPostPaginated(@PathVariable(value ="pageNo") int pageNo, Model model) {
+        int pageSize = 5;
+        Page<Post> page = postService.findPostPaginated(pageNo, pageSize);
+        List<Post> postList = page.getContent();
+        model.addAttribute("currentPage", pageNo);
+        model.addAttribute("totalPages", page.getTotalPages());
+        model.addAttribute("totalItems", page.getTotalElements()); // returns the number of elements
+        model.addAttribute("postList", postList);
+        return "index";
+    }
+
+
 }

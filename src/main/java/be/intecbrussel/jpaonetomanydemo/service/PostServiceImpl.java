@@ -1,15 +1,19 @@
 package be.intecbrussel.jpaonetomanydemo.service;
 
-
-
 import be.intecbrussel.jpaonetomanydemo.model.Post;
 import be.intecbrussel.jpaonetomanydemo.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
+
 @Service
 public class PostServiceImpl implements PostService {
+
     private final PostRepository postRepository;
 
     @Autowired
@@ -17,11 +21,8 @@ public class PostServiceImpl implements PostService {
         this.postRepository = postRepository;
     }
 
-    /**
-     * @return
-     */
     @Override
-    public List<Post> getAllPosts() {
+    public List<Post> getAllPost() {
         return postRepository.findAll();
     }
 
@@ -31,15 +32,22 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post getPostById(Long id) {
-        return postRepository.findById(id).orElseThrow(() -> new IllegalStateException("Post not found"));
+    public Post getPostById(Long postId) {
+        Optional<Post> postOptional = postRepository.findById(postId);
+        if (!postOptional.isPresent()) {
+            throw new IllegalStateException("Post not found");
+        }
+        return postOptional.get();
+    }
+    @Override
+    public void deletePostById(Long postId) {
+        postRepository.deleteById(postId);
+
     }
 
     @Override
-    public void deletePostById(Long id) {
-        if (!postRepository.existsById(id)) {
-            throw new IllegalStateException("Post with id " + id + " does not exist");
-        }
-        postRepository.deleteById(id);
+    public Page<Post> findPostPaginated(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo-1, pageSize);
+        return this.postRepository.findAll(pageable);
     }
 }

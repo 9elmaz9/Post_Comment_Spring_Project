@@ -1,6 +1,7 @@
 package be.intecbrussel.jpaonetomanydemo.model;
 
-import com.fasterxml.jackson.annotation.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 
@@ -15,18 +16,26 @@ public class Comment extends AuditModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @NotNull
     @Lob
     private String text;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id")
-    @JsonIdentityReference(alwaysAsId=true)
-    @JsonProperty("post_id")
+    //@OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private Post post;
+
+    public Comment() {
+    }
+
+    public Comment(String text, Post post) {
+        this.text = text;
+        this.post = post;
+    }
+
+    public Comment(String text) {
+        this.text = text;
+    }
 
     public Long getId() {
         return id;
