@@ -66,9 +66,9 @@ This project is a Spring Boot application that demonstrates a simple web-based s
    - Utilized Bootstrap for responsive and visually appealing UI design.
    - Integrated Bootstrap components to enhance user experience.
 
-5. **H2 Database**:
-   - Worked with the H2 in-memory database for testing and development purposes.
-   - Configured the H2 database with Spring Boot for seamless integration.
+5.  **MySQL Database**:
+   - Configured MySQL as the database for persistent storage.
+   - Implemented database schema design, including tables for posts and comments.
 
 6. **Pagination**:
    - Implemented pagination to handle large sets of data efficiently.
