@@ -108,20 +108,5 @@ src/
 - `POST /posts/{postId}/comments/{commentId}/edit` - Handles form submission for updating an existing comment.
 - `GET /posts/{postId}/comments/{commentId}/delete` - Deletes a specific comment by its ID.
 
-## Database Configuration
-
-The application uses H2 in-memory database for testing. You can configure the database settings in `src/main/resources/application.properties`.
-
-```properties
-spring.datasource.url=jdbc:h2:mem:testdb
-spring.datasource.driverClassName=org.h2.Driver
-spring.datasource.username=sa
-spring.datasource.password=password
-spring.
 
 
-
-Acknowledgements
-Spring Boot Documentation
-Thymeleaf Documentation
-Bootstrap Documentation
