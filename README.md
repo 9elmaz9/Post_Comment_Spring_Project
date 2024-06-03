@@ -18,77 +18,14 @@ This project is a Spring Boot application that demonstrates a simple web-based s
 - **Spring Data JPA**: For database interactions.
 - **Thymeleaf**: Template engine for rendering the UI.
 - **Bootstrap**: For responsive and styled web pages.
-- **H2 Database**: In-memory database for testing.
+- **MySQL Database**: In-memory database for testing.
 
-## Project Structure
-
-src/
-├── main/
-│ ├── java/
-│ │ └── be/
-│ │ └── intecbrussel/
-│ │ └── jpaonetomanydemo/
-│ │ ├── controller/
-│ │ │ ├── CommentController.java
-│ │ │ └── PostController.java
-│ │ ├── model/
-│ │ │ ├── Comment.java
-│ │ │ └── Post.java
-│ │ ├── repository/
-│ │ │ ├── CommentRepository.java
-│ │ │ └── PostRepository.java
-│ │ └── service/
-│ │ ├── CommentServiceImpl.java
-│ │ └── PostServiceImpl.java
-│ ├── resources/
-│ │ ├── templates/
-│ │ │ ├── comments.html
-│ │ │ ├── edit_comment.html
-│ │ │ ├── edit_post.html
-│ │ │ ├── index.html
-│ │ │ └── new_post.html
-│ │ └── application.properties
-│ └── webapp/
-│ └── WEB-INF/
-│ └── web.xml
-└── test/
-└── java/
-└── be/
-└── intecbrussel/
-└── jpaonetomanydemo/
-└── PostCommentApplicationTests.java
-
-
-## Getting Started
 
 ### Prerequisites
 
 - Java 11 or higher
 - Maven
 - An IDE like IntelliJ IDEA or Eclipse
-
-### Installation
-
-1. **Clone the repository**:
-    ```sh
-    git clone https://github.com/yourusername/jpaonetomanydemo.git
-    cd jpaonetomanydemo
-    ```
-
-2. **Build the project**:
-    ```sh
-    mvn clean install
-    ```
-
-3. **Run the application**:
-    ```sh
-    mvn spring-boot:run
-    ```
-
-4. **Access the application**:
-    Open your web browser and navigate to `http://localhost:8080`.
-
-## Endpoints
 
 ### PostController
 
@@ -107,6 +44,47 @@ src/
 - `GET /posts/{postId}/comments/{commentId}/edit` - Displays the form to edit a specific comment.
 - `POST /posts/{postId}/comments/{commentId}/edit` - Handles form submission for updating an existing comment.
 - `GET /posts/{postId}/comments/{commentId}/delete` - Deletes a specific comment by its ID.
+# Learning Outcomes
+
+## Through the development of this project, I have acquired and enhanced several skills and knowledge areas:
+
+## Technical Skills
+
+1. **Spring Boot Framework**: 
+   - Gained hands-on experience in creating a Spring Boot application from scratch.
+   - Implemented RESTful APIs using Spring MVC and managed application configuration with Spring Boot.
+
+2. **Spring Data JPA**:
+   - Learned to use Spring Data JPA for database operations, including CRUD operations.
+   - Managed entity relationships, specifically the one-to-many relationship between posts and comments.
+
+3. **Thymeleaf**:
+   - Used Thymeleaf as a template engine for rendering dynamic web pages.
+   - Created forms for data input and used model attributes to bind data between the controller and the view.
+
+4. **Bootstrap**:
+   - Utilized Bootstrap for responsive and visually appealing UI design.
+   - Integrated Bootstrap components to enhance user experience.
+
+5. **H2 Database**:
+   - Worked with the H2 in-memory database for testing and development purposes.
+   - Configured the H2 database with Spring Boot for seamless integration.
+
+6. **Pagination**:
+   - Implemented pagination to handle large sets of data efficiently.
+   - Enhanced user experience by allowing users to navigate through paginated lists of posts and comments.
+
+## Software Development Practices
+
+### MVC Architecture
+```java
+// Applied the Model-View-Controller (MVC) design pattern to structure the application logically.
+// Ensured separation of concerns by dividing the application into layers (Controller, Service, Repository).
+
+
+Dependency Injection
+// Leveraged Spring’s dependency injection to manage dependencies and reduce tight coupling between components.
+
 
 
 
