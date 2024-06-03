@@ -1,5 +1,5 @@
 # Posts and Comments Management System
-
+![Project Image](https://i.pinimg.com/originals/b8/74/f4/b874f4c405819eb09d2db69d6821f02d.jpg)
 ## Overview
 
 This project is a Spring Boot application that demonstrates a simple web-based system for managing posts and comments. It showcases a one-to-many relationship between posts and comments using Spring Data JPA and Thymeleaf for the frontend.
