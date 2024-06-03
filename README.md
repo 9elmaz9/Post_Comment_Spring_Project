@@ -85,6 +85,42 @@ This project is a Spring Boot application that demonstrates a simple web-based s
 Dependency Injection
 // Leveraged Spring’s dependency injection to manage dependencies and reduce tight coupling between components.
 
+Testing
+// Wrote unit tests for various components to ensure the reliability and correctness of the application.
+// Used JUnit for writing and running tests.
+
+Project Management with Maven
+// Managed project dependencies and build lifecycle using Maven.
+// Created and executed build scripts for the application.
+
+
+
+Soft Skills
+Problem-Solving
+// Tackled various technical challenges during the development process and devised effective solutions.
+// Improved my ability to troubleshoot and debug issues systematically.
+
+Time Management
+// Managed my time effectively to complete the project within the given timeframe.
+// Prioritized tasks and milestones to ensure steady progress.
+
+
+Collaboration
+// Although this project was individual, I practiced collaboration skills by seeking feedback and discussing solutions with peers and mentors.
+
+Documentation
+// Documented the project thoroughly, including writing a comprehensive README and in-line code comments.
+// Ensured that the documentation was clear and helpful for future reference and other developers.
+
+
+
+
+
+
+
+
+
+
 
 
 
